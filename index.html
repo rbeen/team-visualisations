@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Work Map</title>
+  <style>
+    :root {
+      --bg-1: #0c1117;
+      --bg-2: #101827;
+      --panel: #0f172a;
+      --ink: #e5ecf4;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #c084fc;
+      --accent-3: #f472b6;
+      --accent-4: #22d3ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 25% 20%, rgba(56, 189, 248, 0.12), transparent 35%),
+                  radial-gradient(circle at 80% 10%, rgba(192, 132, 252, 0.12), transparent 40%),
+                  linear-gradient(145deg, var(--bg-1), var(--bg-2));
+      color: var(--ink);
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 32px 20px 48px;
+    }
+
+    .page {
+      width: min(1200px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+
+    header h1 {
+      margin: 0;
+      letter-spacing: 0.01em;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.08), transparent 35%),
+                  radial-gradient(circle at 80% 60%, rgba(244, 114, 182, 0.08), transparent 30%);
+    }
+
+    .card-header {
+      padding: 16px 18px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease;
+    }
+
+    .button:hover {
+      border-color: rgba(148, 163, 184, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .chart {
+      width: 100%;
+      height: 640px;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .link {
+      stroke: rgba(148, 163, 184, 0.45);
+      stroke-width: 1.6px;
+      stroke-linecap: round;
+    }
+
+    .node path {
+      stroke: #0b1221;
+      stroke-width: 2px;
+    }
+
+    .node text {
+      fill: var(--ink);
+      font-size: 13px;
+      pointer-events: none;
+      text-shadow: 0 1px 0 #0b1221;
+    }
+
+    .dim {
+      opacity: 0.15;
+    }
+
+    .highlight {
+      stroke: #f8fafc !important;
+      stroke-width: 2.4px;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-size: 13px;
+      box-shadow: 0 15px 45px -15px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      transform: translate(-50%, -120%);
+      min-width: 180px;
+      opacity: 0;
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Team to Story Map</h1>
+      <p>Hover or drag nodes to see which team members are paired to each story and epic.</p>
+    </header>
+
+    <section class="card">
+      <div class="card-header">
+        <div class="legend">
+          <span><span class="dot" style="background: var(--accent);"></span>People</span>
+          <span><span class="dot" style="background: var(--accent-2);"></span>Stories</span>
+          <span><span class="dot" style="background: var(--accent-3);"></span>Epics</span>
+        </div>
+        <div class="controls">
+          <label class="button" for="csv-input">Load Jira CSV</label>
+          <button class="button" id="use-sample" type="button">Use sample</button>
+          <span class="hint">File stays in your browser</span>
+        </div>
+      </div>
+      <input type="file" id="csv-input" accept=".csv,text/csv" />
+      <div style="color: var(--muted); font-size: 13px; padding: 0 18px 12px;" id="status">Using bundled sample data</div>
+      <div class="chart" id="chart"></div>
+    </section>
+  </main>
+
+  <div class="tooltip" id="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script>
+    const palette = {
+      member: "var(--accent)",
+      story: "var(--accent-2)",
+      epic: "var(--accent-3)"
+    };
+
+    const sampleData = {
+      members: [
+        { id: "Amir", role: "Backend" },
+        { id: "Bree", role: "Frontend" },
+        { id: "Carlos", role: "Mobile" },
+        { id: "Dana", role: "Data" },
+        { id: "Elena", role: "QA" },
+        { id: "Finn", role: "PM" }
+      ],
+      stories: [
+        { id: "ST-120", title: "Onboarding login", epic: "EP-10" },
+        { id: "ST-134", title: "Checkout billing", epic: "EP-12" },
+        { id: "ST-142", title: "Push notifications", epic: "EP-11" },
+        { id: "ST-155", title: "Usage analytics", epic: "EP-13" },
+        { id: "ST-158", title: "Performance hardening", epic: "EP-10" }
+      ],
+      epics: [
+        { id: "EP-10", title: "Customer onboarding" },
+        { id: "EP-11", title: "Engagement & messaging" },
+        { id: "EP-12", title: "Payments & billing" },
+        { id: "EP-13", title: "Insights & reporting" }
+      ],
+      assignments: [
+        { member: "Amir", story: "ST-120" },
+        { member: "Amir", story: "ST-158" },
+        { member: "Bree", story: "ST-120" },
+        { member: "Bree", story: "ST-142" },
+        { member: "Carlos", story: "ST-142" },
+        { member: "Dana", story: "ST-155" },
+        { member: "Elena", story: "ST-120" },
+        { member: "Elena", story: "ST-134" },
+        { member: "Finn", story: "ST-134" },
+        { member: "Finn", story: "ST-155" }
+      ]
+    };
+
+    const width = 1100;
+    const height = 620;
+    const stage = d3.select("#chart")
+      .append("svg")
+      .attr("viewBox", [0, 0, width, height])
+      .attr("aria-label", "Team member to story and epic map");
+
+    const tooltip = d3.select("#tooltip");
+
+    const xByType = {
+      member: width * 0.18,
+      story: width * 0.52,
+      epic: width * 0.82
+    };
+
+    const statusEl = document.getElementById("status");
+    const fileInput = document.getElementById("csv-input");
+    const useSampleBtn = document.getElementById("use-sample");
+
+    fileInput.addEventListener("change", handleFileChange);
+    useSampleBtn.addEventListener("click", () => {
+      setStatus("Using bundled sample data");
+      renderGraph(clone(sampleData));
+    });
+
+    renderGraph(clone(sampleData));
+
+    function handleFileChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target.result;
+          const rows = d3.csvParse(text);
+          const parsed = transformJiraCsv(rows);
+          if (!parsed.stories.length) {
+            throw new Error("No stories found in CSV");
+          }
+          setStatus(`Loaded ${file.name} (${parsed.stories.length} stories, ${parsed.epics.length} epics, ${parsed.members.length} people)`);
+          renderGraph(parsed);
+        } catch (err) {
+          console.error("Could not read CSV", err);
+          setStatus("Could not read CSV: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function transformJiraCsv(rows) {
+      const members = new Map();
+      const epics = new Map();
+      const stories = [];
+      const assignments = [];
+
+      rows.forEach(row => {
+        const type = (row["Issue Type"] || "").trim().toLowerCase();
+        const key = (row["Issue key"] || "").trim();
+        if (!key) return;
+        const summary = (row["Summary"] || key).trim() || key;
+        const assignee = (row["Assignee"] || "").trim();
+        const parentKey = (row["Parent key"] || "").trim();
+        const parentSummary = (row["Parent summary"] || "").trim();
+
+        if (type === "epic") {
+          if (!epics.has(key)) {
+            epics.set(key, { id: key, title: summary || key });
+          }
+          return;
+        }
+
+        stories.push({ id: key, title: summary, epic: parentKey || null });
+
+        if (parentKey && !epics.has(parentKey)) {
+          epics.set(parentKey, { id: parentKey, title: parentSummary || parentKey });
+        }
+
+        if (assignee) {
+          if (!members.has(assignee)) {
+            members.set(assignee, { id: assignee, role: "Assignee" });
+          }
+          assignments.push({ member: assignee, story: key });
+        }
+      });
+
+      return {
+        members: [...members.values()],
+        stories,
+        epics: [...epics.values()],
+        assignments
+      };
+    }
+
+    function renderGraph(data) {
+      if (renderGraph.simulation) {
+        renderGraph.simulation.stop();
+      }
+
+      stage.selectAll("*").remove();
+
+      const nodes = [
+        ...data.members.map(d => ({ id: d.id, label: d.id, detail: d.role || "Member", type: "member" })),
+        ...data.stories.map(d => ({ id: d.id, label: d.id, detail: d.title, type: "story" })),
+        ...data.epics.map(d => ({ id: d.id, label: d.id, detail: d.title, type: "epic" }))
+      ];
+
+      const links = [
+        ...data.assignments.map(d => ({ source: d.member, target: d.story, kind: "works-on" })),
+        ...data.stories.filter(d => d.epic).map(d => ({ source: d.id, target: d.epic, kind: "rolls-up" }))
+      ];
+
+      const link = stage.append("g")
+        .attr("stroke-linecap", "round")
+        .selectAll("line")
+        .data(links)
+        .join("line")
+        .attr("class", "link");
+
+      const symbolType = {
+        member: d3.symbolCircle,
+        story: d3.symbolDiamond,
+        epic: d3.symbolTriangle
+      };
+
+      const node = stage.append("g")
+        .selectAll("g")
+        .data(nodes)
+        .join("g")
+        .attr("class", "node");
+
+      node.append("path")
+        .attr("fill", d => palette[d.type])
+        .attr("d", d3.symbol().type(d => symbolType[d.type]).size(d => {
+          if (d.type === "epic") return 820;
+          if (d.type === "story") return 640;
+          return 520;
+        }));
+
+      node.append("text")
+        .attr("x", 16)
+        .attr("dy", "0.35em")
+        .text(d => d.label);
+
+      const simulation = d3.forceSimulation(nodes)
+        .force("link", d3.forceLink(links).id(d => d.id).distance(l => l.kind === "rolls-up" ? 110 : 85))
+        .force("charge", d3.forceManyBody().strength(-280))
+        .force("x", d3.forceX(d => xByType[d.type]).strength(0.5))
+        .force("y", d3.forceY(height / 2).strength(0.06))
+        .force("collide", d3.forceCollide(28))
+        .on("tick", ticked);
+
+      renderGraph.simulation = simulation;
+
+      node.call(drag(simulation));
+
+      function ticked() {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+      }
+
+      function drag(sim) {
+        function dragstarted(event) {
+          if (!event.active) sim.alphaTarget(0.2).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+          if (!event.active) sim.alphaTarget(0);
+        }
+
+        return d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
+
+      function relatedIds(targetId) {
+        const connected = new Set([targetId]);
+        links.forEach(l => {
+          if (l.source.id === targetId) connected.add(l.target.id);
+          if (l.target.id === targetId) connected.add(l.source.id);
+        });
+        return connected;
+      }
+
+      function showTooltip(event, d) {
+        const connected = relatedIds(d.id);
+        node.classed("dim", n => !connected.has(n.id));
+        link
+          .classed("dim", l => !(connected.has(l.source.id) && connected.has(l.target.id)))
+          .classed("highlight", l => l.source.id === d.id || l.target.id === d.id);
+
+        tooltip
+          .style("left", `${event.pageX}px`)
+          .style("top", `${event.pageY}px`)
+          .style("opacity", 1)
+          .style("transform", "translate(-50%, -120%)")
+          .html(`
+            <strong>${d.label}</strong><br/>
+            <span style="color: var(--muted);">${d.detail}</span><br/>
+            <span style="color: var(--muted);">Type: ${d.type}</span>
+          `);
+      }
+
+      function hideTooltip() {
+        node.classed("dim", false);
+        link.classed("dim", false).classed("highlight", false);
+        tooltip.style("opacity", 0).style("transform", "translate(-50%, -110%)");
+      }
+
+      node.on("mouseenter", showTooltip)
+        .on("mousemove", showTooltip)
+        .on("mouseleave", hideTooltip);
+
+      stage.on("click", (event) => {
+        if (event.target.tagName.toLowerCase() === "svg") {
+          hideTooltip();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
