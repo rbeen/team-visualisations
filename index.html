@@ -141,13 +141,15 @@
 
     .chart {
       width: 100%;
-      height: 640px;
+      height: clamp(420px, 70vh, 820px);
+      position: relative;
     }
 
     svg {
       width: 100%;
       height: 100%;
       display: block;
+      cursor: grab;
     }
 
     .link {
@@ -267,24 +269,28 @@
       ]
     };
 
-    const width = 1100;
-    const height = 620;
+    const chartEl = document.getElementById("chart");
     const stage = d3.select("#chart")
       .append("svg")
-      .attr("viewBox", [0, 0, width, height])
+      .attr("viewBox", [0, 0, 1100, 620])
       .attr("aria-label", "Team member to story and epic map");
 
-    const tooltip = d3.select("#tooltip");
+    const zoomLayer = stage.append("g").attr("class", "zoom-layer");
+    const zoomBehaviour = d3.zoom()
+      .scaleExtent([0.6, 2.5])
+      .on("zoom", (event) => {
+        zoomLayer.attr("transform", event.transform);
+      });
+    stage.call(zoomBehaviour);
 
-    const xByType = {
-      member: width * 0.18,
-      story: width * 0.52,
-      epic: width * 0.82
-    };
+    const tooltip = d3.select("#tooltip");
 
     const statusEl = document.getElementById("status");
     const fileInput = document.getElementById("csv-input");
     const useSampleBtn = document.getElementById("use-sample");
+    let width = 1100;
+    let height = 620;
+    let currentData = null;
 
     fileInput.addEventListener("change", handleFileChange);
     useSampleBtn.addEventListener("click", () => {
@@ -292,6 +298,15 @@
       renderGraph(clone(sampleData));
     });
 
+    const resizeObserver = new ResizeObserver(() => {
+      measure();
+      if (currentData) {
+        renderGraph(currentData);
+      }
+    });
+    resizeObserver.observe(chartEl);
+
+    measure();
     renderGraph(clone(sampleData));
 
     function handleFileChange(event) {
@@ -323,6 +338,12 @@
 
     function setStatus(msg) {
       statusEl.textContent = msg;
+    }
+
+    function measure() {
+      const rect = chartEl.getBoundingClientRect();
+      width = rect.width || 1100;
+      height = rect.height || 620;
     }
 
     function transformJiraCsv(rows) {
@@ -374,20 +395,46 @@
         renderGraph.simulation.stop();
       }
 
-      stage.selectAll("*").remove();
+      currentData = clone(data);
+      zoomLayer.selectAll("*").remove();
 
+      stage
+        .attr("viewBox", [0, 0, width, height])
+        .call(zoomBehaviour.transform, d3.zoomIdentity);
+
+      const xByType = {
+        member: width * 0.18,
+        story: width * 0.52,
+        epic: width * 0.82
+      };
       const nodes = [
         ...data.members.map(d => ({ id: d.id, label: d.id, detail: d.role || "Member", type: "member" })),
         ...data.stories.map(d => ({ id: d.id, label: d.id, detail: d.title, type: "story" })),
         ...data.epics.map(d => ({ id: d.id, label: d.id, detail: d.title, type: "epic" }))
       ];
 
+      const storyToEpic = new Map();
+      const epicToStories = new Map();
+      const storyToMembers = new Map();
+      const memberToStories = new Map();
+
       const links = [
-        ...data.assignments.map(d => ({ source: d.member, target: d.story, kind: "works-on" })),
-        ...data.stories.filter(d => d.epic).map(d => ({ source: d.id, target: d.epic, kind: "rolls-up" }))
+        ...data.assignments.map(d => {
+          if (!memberToStories.has(d.member)) memberToStories.set(d.member, []);
+          memberToStories.get(d.member).push(d.story);
+          if (!storyToMembers.has(d.story)) storyToMembers.set(d.story, []);
+          storyToMembers.get(d.story).push(d.member);
+          return { source: d.member, target: d.story, kind: "works-on" };
+        }),
+        ...data.stories.filter(d => d.epic).map(d => {
+          storyToEpic.set(d.id, d.epic);
+          if (!epicToStories.has(d.epic)) epicToStories.set(d.epic, []);
+          epicToStories.get(d.epic).push(d.id);
+          return { source: d.id, target: d.epic, kind: "rolls-up" };
+        })
       ];
 
-      const link = stage.append("g")
+      const link = zoomLayer.append("g")
         .attr("stroke-linecap", "round")
         .selectAll("line")
         .data(links)
@@ -400,7 +447,7 @@
         epic: d3.symbolTriangle
       };
 
-      const node = stage.append("g")
+      const node = zoomLayer.append("g")
         .selectAll("g")
         .data(nodes)
         .join("g")
@@ -463,21 +510,39 @@
           .on("end", dragended);
       }
 
-      function relatedIds(targetId) {
-        const connected = new Set([targetId]);
-        links.forEach(l => {
-          if (l.source.id === targetId) connected.add(l.target.id);
-          if (l.target.id === targetId) connected.add(l.source.id);
-        });
-        return connected;
+      function focusSet(nodeDatum) {
+        const seen = new Set([nodeDatum.id]);
+
+        if (nodeDatum.type === "member") {
+          const stories = memberToStories.get(nodeDatum.id) || [];
+          stories.forEach(storyId => {
+            seen.add(storyId);
+            const epicId = storyToEpic.get(storyId);
+            if (epicId) seen.add(epicId);
+          });
+        } else if (nodeDatum.type === "epic") {
+          const stories = epicToStories.get(nodeDatum.id) || [];
+          stories.forEach(storyId => {
+            seen.add(storyId);
+            const members = storyToMembers.get(storyId) || [];
+            members.forEach(memberId => seen.add(memberId));
+          });
+        } else if (nodeDatum.type === "story") {
+          const epicId = storyToEpic.get(nodeDatum.id);
+          if (epicId) seen.add(epicId);
+          const members = storyToMembers.get(nodeDatum.id) || [];
+          members.forEach(memberId => seen.add(memberId));
+        }
+
+        return seen;
       }
 
       function showTooltip(event, d) {
-        const connected = relatedIds(d.id);
+        const connected = focusSet(d);
         node.classed("dim", n => !connected.has(n.id));
         link
           .classed("dim", l => !(connected.has(l.source.id) && connected.has(l.target.id)))
-          .classed("highlight", l => l.source.id === d.id || l.target.id === d.id);
+          .classed("highlight", l => connected.has(l.source.id) && connected.has(l.target.id));
 
         tooltip
           .style("left", `${event.pageX}px`)
@@ -507,6 +572,7 @@
         }
       });
     }
+
   </script>
 </body>
 </html>
