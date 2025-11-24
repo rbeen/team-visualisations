@@ -105,6 +105,12 @@
       transform: translateY(0);
     }
 
+    .button.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
     .hint {
       color: var(--muted);
       font-size: 12px;
@@ -150,6 +156,15 @@
       height: 100%;
       display: block;
       cursor: grab;
+    }
+
+    .view {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hidden {
+      display: none;
     }
 
     .link {
@@ -214,6 +229,8 @@
         <div class="controls">
           <label class="button" for="csv-input">Load Jira CSV</label>
           <button class="button" id="use-sample" type="button">Use sample</button>
+          <button class="button active" id="mode-force" type="button">Force graph</button>
+          <button class="button" id="mode-sankey" type="button">Sankey</button>
           <span class="hint">File stays in your browser</span>
         </div>
       </div>
@@ -226,6 +243,7 @@
   <div class="tooltip" id="tooltip"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
   <script>
     const palette = {
       member: "var(--accent)",
@@ -270,33 +288,49 @@
     };
 
     const chartEl = document.getElementById("chart");
-    const stage = d3.select("#chart")
+    const forceSvg = d3.select("#chart")
       .append("svg")
       .attr("viewBox", [0, 0, 1100, 620])
-      .attr("aria-label", "Team member to story and epic map");
+      .attr("aria-label", "Team member to story and epic map")
+      .attr("class", "view")
+      .attr("id", "force-view");
 
-    const zoomLayer = stage.append("g").attr("class", "zoom-layer");
+    const sankeySvg = d3.select("#chart")
+      .append("svg")
+      .attr("viewBox", [0, 0, 1100, 620])
+      .attr("aria-label", "Team member to epic flow")
+      .attr("class", "view hidden")
+      .attr("id", "sankey-view");
+
+    const zoomLayer = forceSvg.append("g").attr("class", "zoom-layer");
     const zoomBehaviour = d3.zoom()
       .scaleExtent([0.6, 2.5])
       .on("zoom", (event) => {
         zoomLayer.attr("transform", event.transform);
       });
-    stage.call(zoomBehaviour);
+    forceSvg.call(zoomBehaviour);
+
+    const sankeyLayer = sankeySvg.append("g").attr("class", "sankey-layer");
 
     const tooltip = d3.select("#tooltip");
 
     const statusEl = document.getElementById("status");
     const fileInput = document.getElementById("csv-input");
     const useSampleBtn = document.getElementById("use-sample");
+    const modeForceBtn = document.getElementById("mode-force");
+    const modeSankeyBtn = document.getElementById("mode-sankey");
     let width = 1100;
     let height = 620;
     let currentData = null;
+    let currentMode = "force";
 
     fileInput.addEventListener("change", handleFileChange);
     useSampleBtn.addEventListener("click", () => {
       setStatus("Using bundled sample data");
       renderGraph(clone(sampleData));
     });
+    modeForceBtn.addEventListener("click", () => setMode("force"));
+    modeSankeyBtn.addEventListener("click", () => setMode("sankey"));
 
     const resizeObserver = new ResizeObserver(() => {
       measure();
@@ -338,6 +372,15 @@
 
     function setStatus(msg) {
       statusEl.textContent = msg;
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      modeForceBtn.classList.toggle("active", mode === "force");
+      modeSankeyBtn.classList.toggle("active", mode === "sankey");
+      forceSvg.classed("hidden", mode !== "force");
+      sankeySvg.classed("hidden", mode !== "sankey");
+      if (currentData) renderGraph(currentData);
     }
 
     function measure() {
@@ -391,16 +434,28 @@
     }
 
     function renderGraph(data) {
+      currentData = clone(data);
+
+      forceSvg
+        .attr("viewBox", [0, 0, width, height])
+        .call(zoomBehaviour.transform, d3.zoomIdentity);
+
+      sankeySvg
+        .attr("viewBox", [0, 0, width, height]);
+
+      if (currentMode === "force") {
+        renderForce(currentData);
+      } else {
+        renderSankey(currentData);
+      }
+    }
+
+    function renderForce(data) {
       if (renderGraph.simulation) {
         renderGraph.simulation.stop();
       }
 
-      currentData = clone(data);
       zoomLayer.selectAll("*").remove();
-
-      stage
-        .attr("viewBox", [0, 0, width, height])
-        .call(zoomBehaviour.transform, d3.zoomIdentity);
 
       const xByType = {
         member: width * 0.18,
@@ -566,11 +621,114 @@
         .on("mousemove", showTooltip)
         .on("mouseleave", hideTooltip);
 
-      stage.on("click", (event) => {
+      forceSvg.on("click", (event) => {
         if (event.target.tagName.toLowerCase() === "svg") {
           hideTooltip();
         }
       });
+    }
+
+    function renderSankey(data) {
+      sankeyLayer.selectAll("*").remove();
+
+      const storyToEpic = new Map();
+      data.stories.forEach(s => {
+        if (s.epic) storyToEpic.set(s.id, s.epic);
+      });
+
+      const linkValues = new Map();
+      data.assignments.forEach(assign => {
+        const epicId = storyToEpic.get(assign.story);
+        if (!epicId) return;
+        const key = `${assign.member}|${epicId}`;
+        linkValues.set(key, (linkValues.get(key) || 0) + 1);
+      });
+
+      const nodes = [
+        ...data.members.map(d => ({ id: d.id, label: d.id, type: "member" })),
+        ...data.epics.map(d => ({ id: d.id, label: d.id, type: "epic" }))
+      ];
+
+      const links = Array.from(linkValues.entries()).map(([key, value]) => {
+        const [member, epic] = key.split("|");
+        return {
+          source: member,
+          target: epic,
+          value
+        };
+      });
+
+      const sankeyGen = d3.sankey()
+        .nodeId(d => d.id)
+        .nodeAlign(node => node.type === "member" ? 0 : 1)
+        .nodePadding(12)
+        .extent([[20, 20], [width - 20, height - 20]]);
+
+      const graph = sankeyGen({
+        nodes: nodes.map(d => Object.assign({}, d)),
+        links
+      });
+
+      const link = sankeyLayer.append("g")
+        .attr("fill", "none")
+        .selectAll("path")
+        .data(graph.links)
+        .join("path")
+        .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke", "rgba(148, 163, 184, 0.5)")
+        .attr("stroke-width", d => Math.max(1, d.width))
+        .attr("stroke-opacity", 0.8);
+
+      const node = sankeyLayer.append("g")
+        .selectAll("g")
+        .data(graph.nodes)
+        .join("g")
+        .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+      node.append("rect")
+        .attr("height", d => Math.max(4, d.y1 - d.y0))
+        .attr("width", d => Math.max(8, Math.min(14, (d.x1 - d.x0))))
+        .attr("fill", d => palette[d.type])
+        .attr("stroke", "#0b1221")
+        .attr("rx", 4);
+
+      node.append("text")
+        .attr("x", d => d.type === "member" ? -8 : 8)
+        .attr("y", d => (d.y1 - d.y0) / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", d => d.type === "member" ? "end" : "start")
+        .attr("fill", "#e2e8f0")
+        .text(d => d.id);
+
+      const sankeyTooltip = (event, d) => {
+        tooltip
+          .style("left", `${event.pageX}px`)
+          .style("top", `${event.pageY}px`)
+          .style("opacity", 1)
+          .style("transform", "translate(-50%, -120%)")
+          .html(`
+            <strong>${d.source.id} → ${d.target.id}</strong><br/>
+            <span style="color: var(--muted);">Assignments: ${d.value}</span>
+          `);
+      };
+
+      link.on("mouseenter", sankeyTooltip)
+        .on("mousemove", sankeyTooltip)
+        .on("mouseleave", () => tooltip.style("opacity", 0));
+
+      node.on("mouseenter", (event, d) => {
+        tooltip
+          .style("left", `${event.pageX}px`)
+          .style("top", `${event.pageY}px`)
+          .style("opacity", 1)
+          .style("transform", "translate(-50%, -120%)")
+          .html(`
+            <strong>${d.id}</strong><br/>
+            <span style="color: var(--muted);">Type: ${d.type}</span>
+          `);
+      }).on("mousemove", (event) => {
+        tooltip.style("left", `${event.pageX}px`).style("top", `${event.pageY}px`);
+      }).on("mouseleave", () => tooltip.style("opacity", 0));
     }
 
   </script>
