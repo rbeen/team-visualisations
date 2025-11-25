@@ -1,736 +1,938 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Work Map</title>
-  <style>
-    :root {
-      --bg-1: #0c1117;
-      --bg-2: #101827;
-      --panel: #0f172a;
-      --ink: #e5ecf4;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #c084fc;
-      --accent-3: #f472b6;
-      --accent-4: #22d3ee;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Work Map</title>
+    <style>
+      :root {
+        --bg-1: #0c1117;
+        --bg-2: #101827;
+        --panel: #0f172a;
+        --ink: #e5ecf4;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-2: #c084fc;
+        --accent-3: #f472b6;
+        --accent-4: #22d3ee;
+      }
 
-    * {
-      box-sizing: border-box;
-    }
+      * {
+        box-sizing: border-box;
+      }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at 25% 20%, rgba(56, 189, 248, 0.12), transparent 35%),
-                  radial-gradient(circle at 80% 10%, rgba(192, 132, 252, 0.12), transparent 40%),
-                  linear-gradient(145deg, var(--bg-1), var(--bg-2));
-      color: var(--ink);
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      display: flex;
-      justify-content: center;
-      padding: 32px 20px 48px;
-    }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(
+            circle at 25% 20%,
+            rgba(56, 189, 248, 0.12),
+            transparent 35%
+          ),
+          radial-gradient(
+            circle at 80% 10%,
+            rgba(192, 132, 252, 0.12),
+            transparent 40%
+          ),
+          linear-gradient(145deg, var(--bg-1), var(--bg-2));
+        color: var(--ink);
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 32px 20px 48px;
+      }
 
-    .page {
-      width: min(1200px, 100%);
-      display: grid;
-      gap: 16px;
-    }
+      .page {
+        width: min(1200px, 100%);
+        display: grid;
+        gap: 16px;
+      }
 
-    header h1 {
-      margin: 0;
-      letter-spacing: 0.01em;
-      font-weight: 700;
-    }
+      header h1 {
+        margin: 0;
+        letter-spacing: 0.01em;
+        font-weight: 700;
+      }
 
-    header p {
-      margin: 6px 0 0;
-      color: var(--muted);
-    }
+      header p {
+        margin: 6px 0 0;
+        color: var(--muted);
+      }
 
-    .card {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 16px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
-      overflow: hidden;
-      position: relative;
-    }
+      .card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+        position: relative;
+      }
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.08), transparent 35%),
-                  radial-gradient(circle at 80% 60%, rgba(244, 114, 182, 0.08), transparent 30%);
-    }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(
+            circle at 50% 20%,
+            rgba(56, 189, 248, 0.08),
+            transparent 35%
+          ),
+          radial-gradient(
+            circle at 80% 60%,
+            rgba(244, 114, 182, 0.08),
+            transparent 30%
+          );
+      }
 
-    .card-header {
-      padding: 16px 18px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+      .card-header {
+        padding: 16px 18px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
 
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
 
-    .button {
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(148, 163, 184, 0.08);
-      color: var(--ink);
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: border-color 120ms ease, transform 120ms ease;
-    }
+      .button {
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(148, 163, 184, 0.08);
+        color: var(--ink);
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border-color 120ms ease, transform 120ms ease;
+      }
 
-    .button:hover {
-      border-color: rgba(148, 163, 184, 0.7);
-      transform: translateY(-1px);
-    }
+      .button:hover {
+        border-color: rgba(148, 163, 184, 0.7);
+        transform: translateY(-1px);
+      }
 
-    .button:active {
-      transform: translateY(0);
-    }
+      .button:active {
+        transform: translateY(0);
+      }
 
-    .button.active {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(56, 189, 248, 0.12);
-    }
+      .button.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(56, 189, 248, 0.12);
+      }
 
-    .hint {
-      color: var(--muted);
-      font-size: 12px;
-    }
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+      }
 
-    input[type="file"] {
-      display: none;
-    }
+      .select {
+        background: rgba(148, 163, 184, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: var(--ink);
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        min-width: 180px;
+      }
 
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      font-size: 14px;
-      color: var(--muted);
-    }
+      input[type="file"] {
+        display: none;
+      }
 
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 10px;
-      background: rgba(148, 163, 184, 0.08);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-    }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
 
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-    }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: rgba(148, 163, 184, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+      }
 
-    .chart {
-      width: 100%;
-      height: clamp(420px, 70vh, 820px);
-      position: relative;
-    }
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+      }
 
-    svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      cursor: grab;
-    }
+      .chart {
+        width: 100%;
+        height: clamp(420px, 70vh, 820px);
+        position: relative;
+      }
 
-    .view {
-      position: absolute;
-      inset: 0;
-    }
+      svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: grab;
+      }
 
-    .hidden {
-      display: none;
-    }
+      .view {
+        position: absolute;
+        inset: 0;
+      }
 
-    .link {
-      stroke: rgba(148, 163, 184, 0.45);
-      stroke-width: 1.6px;
-      stroke-linecap: round;
-    }
+      .hidden {
+        display: none;
+      }
 
-    .node path {
-      stroke: #0b1221;
-      stroke-width: 2px;
-    }
+      .link {
+        stroke: rgba(148, 163, 184, 0.45);
+        stroke-width: 1.6px;
+        stroke-linecap: round;
+      }
 
-    .node text {
-      fill: var(--ink);
-      font-size: 13px;
-      pointer-events: none;
-      text-shadow: 0 1px 0 #0b1221;
-    }
+      .node path {
+        stroke: #0b1221;
+        stroke-width: 2px;
+      }
 
-    .dim {
-      opacity: 0.15;
-    }
+      .node text {
+        fill: var(--ink);
+        font-size: 13px;
+        pointer-events: none;
+        text-shadow: 0 1px 0 #0b1221;
+      }
 
-    .highlight {
-      stroke: #f8fafc !important;
-      stroke-width: 2.4px;
-    }
+      .dim {
+        opacity: 0.15;
+      }
 
-    .tooltip {
-      position: absolute;
-      pointer-events: none;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: var(--ink);
-      font-size: 13px;
-      box-shadow: 0 15px 45px -15px rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      transform: translate(-50%, -120%);
-      min-width: 180px;
-      opacity: 0;
-      transition: opacity 120ms ease, transform 120ms ease;
-    }
-  </style>
-</head>
-<body>
-  <main class="page">
-    <header>
-      <h1>Team to Story Map</h1>
-      <p>Hover or drag nodes to see which team members are paired to each story and epic.</p>
-    </header>
+      .highlight {
+        stroke: #f8fafc !important;
+        stroke-width: 2.4px;
+      }
 
-    <section class="card">
-      <div class="card-header">
-        <div class="legend">
-          <span><span class="dot" style="background: var(--accent);"></span>People</span>
-          <span><span class="dot" style="background: var(--accent-2);"></span>Stories</span>
-          <span><span class="dot" style="background: var(--accent-3);"></span>Epics</span>
+      .tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        border-radius: 8px;
+        padding: 10px 12px;
+        color: var(--ink);
+        font-size: 13px;
+        box-shadow: 0 15px 45px -15px rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        transform: translate(-50%, -120%);
+        min-width: 180px;
+        opacity: 0;
+        transition: opacity 120ms ease, transform 120ms ease;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Team to Story Map</h1>
+        <p>
+          Hover or drag nodes to see which team members are paired to each story
+          and epic.
+        </p>
+      </header>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="legend">
+            <span
+              ><span class="dot" style="background: var(--accent)"></span
+              >People</span
+            >
+            <span
+              ><span class="dot" style="background: var(--accent-2)"></span
+              >Stories</span
+            >
+            <span
+              ><span class="dot" style="background: var(--accent-3)"></span
+              >Epics</span
+            >
+          </div>
+          <div class="controls">
+            <label class="button" for="csv-input">Load Jira CSV</label>
+            <button class="button" id="use-sample" type="button">
+              Use sample
+            </button>
+            <button class="button active" id="mode-force" type="button">
+              Force graph
+            </button>
+            <button class="button" id="mode-sankey" type="button">
+              Sankey
+            </button>
+            <select class="select" id="sprint-select">
+              <option value="all">All sprints</option>
+            </select>
+            <span class="hint">File stays in your browser</span>
+          </div>
         </div>
-        <div class="controls">
-          <label class="button" for="csv-input">Load Jira CSV</label>
-          <button class="button" id="use-sample" type="button">Use sample</button>
-          <button class="button active" id="mode-force" type="button">Force graph</button>
-          <button class="button" id="mode-sankey" type="button">Sankey</button>
-          <span class="hint">File stays in your browser</span>
+        <input type="file" id="csv-input" accept=".csv,text/csv" />
+        <div
+          style="color: var(--muted); font-size: 13px; padding: 0 18px 12px"
+          id="status"
+        >
+          Using bundled sample data
         </div>
-      </div>
-      <input type="file" id="csv-input" accept=".csv,text/csv" />
-      <div style="color: var(--muted); font-size: 13px; padding: 0 18px 12px;" id="status">Using bundled sample data</div>
-      <div class="chart" id="chart"></div>
-    </section>
-  </main>
+        <div class="chart" id="chart"></div>
+      </section>
+    </main>
 
-  <div class="tooltip" id="tooltip"></div>
+    <div class="tooltip" id="tooltip"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
-  <script>
-    const palette = {
-      member: "var(--accent)",
-      story: "var(--accent-2)",
-      epic: "var(--accent-3)"
-    };
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <script>
+      const palette = {
+        member: "var(--accent)",
+        story: "var(--accent-2)",
+        epic: "var(--accent-3)",
+      };
 
-    const sampleData = {
-      members: [
-        { id: "Amir", role: "Backend" },
-        { id: "Bree", role: "Frontend" },
-        { id: "Carlos", role: "Mobile" },
-        { id: "Dana", role: "Data" },
-        { id: "Elena", role: "QA" },
-        { id: "Finn", role: "PM" }
+      const sampleData = {
+        members: [
+          { id: "Amir", role: "Backend" },
+          { id: "Bree", role: "Frontend" },
+          { id: "Carlos", role: "Mobile" },
+          { id: "Dana", role: "Data" },
+          { id: "Elena", role: "QA" },
+        { id: "Finn", role: "PM" },
       ],
       stories: [
-        { id: "ST-120", title: "Onboarding login", epic: "EP-10" },
-        { id: "ST-134", title: "Checkout billing", epic: "EP-12" },
-        { id: "ST-142", title: "Push notifications", epic: "EP-11" },
-        { id: "ST-155", title: "Usage analytics", epic: "EP-13" },
-        { id: "ST-158", title: "Performance hardening", epic: "EP-10" }
+        { id: "ST-120", title: "Onboarding login", epic: "EP-10", sprints: [] },
+        { id: "ST-134", title: "Checkout billing", epic: "EP-12", sprints: [] },
+        { id: "ST-142", title: "Push notifications", epic: "EP-11", sprints: [] },
+        { id: "ST-155", title: "Usage analytics", epic: "EP-13", sprints: [] },
+        { id: "ST-158", title: "Performance hardening", epic: "EP-10", sprints: [] },
       ],
-      epics: [
-        { id: "EP-10", title: "Customer onboarding" },
-        { id: "EP-11", title: "Engagement & messaging" },
-        { id: "EP-12", title: "Payments & billing" },
-        { id: "EP-13", title: "Insights & reporting" }
-      ],
-      assignments: [
-        { member: "Amir", story: "ST-120" },
-        { member: "Amir", story: "ST-158" },
-        { member: "Bree", story: "ST-120" },
-        { member: "Bree", story: "ST-142" },
-        { member: "Carlos", story: "ST-142" },
-        { member: "Dana", story: "ST-155" },
-        { member: "Elena", story: "ST-120" },
-        { member: "Elena", story: "ST-134" },
-        { member: "Finn", story: "ST-134" },
-        { member: "Finn", story: "ST-155" }
-      ]
-    };
+        epics: [
+          { id: "EP-10", title: "Customer onboarding" },
+          { id: "EP-11", title: "Engagement & messaging" },
+          { id: "EP-12", title: "Payments & billing" },
+          { id: "EP-13", title: "Insights & reporting" },
+        ],
+        assignments: [
+          { member: "Amir", story: "ST-120" },
+          { member: "Amir", story: "ST-158" },
+          { member: "Bree", story: "ST-120" },
+          { member: "Bree", story: "ST-142" },
+          { member: "Carlos", story: "ST-142" },
+          { member: "Dana", story: "ST-155" },
+          { member: "Elena", story: "ST-120" },
+          { member: "Elena", story: "ST-134" },
+          { member: "Finn", story: "ST-134" },
+          { member: "Finn", story: "ST-155" },
+        ],
+      };
 
-    const chartEl = document.getElementById("chart");
-    const forceSvg = d3.select("#chart")
-      .append("svg")
-      .attr("viewBox", [0, 0, 1100, 620])
-      .attr("aria-label", "Team member to story and epic map")
-      .attr("class", "view")
-      .attr("id", "force-view");
+      const chartEl = document.getElementById("chart");
+      const forceSvg = d3
+        .select("#chart")
+        .append("svg")
+        .attr("viewBox", [0, 0, 1100, 620])
+        .attr("aria-label", "Team member to story and epic map")
+        .attr("class", "view")
+        .attr("id", "force-view");
 
-    const sankeySvg = d3.select("#chart")
-      .append("svg")
-      .attr("viewBox", [0, 0, 1100, 620])
-      .attr("aria-label", "Team member to epic flow")
-      .attr("class", "view hidden")
-      .attr("id", "sankey-view");
+      const sankeySvg = d3
+        .select("#chart")
+        .append("svg")
+        .attr("viewBox", [0, 0, 1100, 620])
+        .attr("aria-label", "Team member to epic flow")
+        .attr("class", "view hidden")
+        .attr("id", "sankey-view");
 
-    const zoomLayer = forceSvg.append("g").attr("class", "zoom-layer");
-    const zoomBehaviour = d3.zoom()
-      .scaleExtent([0.6, 2.5])
-      .on("zoom", (event) => {
-        zoomLayer.attr("transform", event.transform);
+      const zoomLayer = forceSvg.append("g").attr("class", "zoom-layer");
+      const zoomBehaviour = d3
+        .zoom()
+        .scaleExtent([0.6, 2.5])
+        .on("zoom", (event) => {
+          zoomLayer.attr("transform", event.transform);
+        });
+      forceSvg.call(zoomBehaviour);
+
+      const sankeyLayer = sankeySvg.append("g").attr("class", "sankey-layer");
+
+      const tooltip = d3.select("#tooltip");
+
+      const statusEl = document.getElementById("status");
+      const fileInput = document.getElementById("csv-input");
+      const useSampleBtn = document.getElementById("use-sample");
+      const modeForceBtn = document.getElementById("mode-force");
+      const modeSankeyBtn = document.getElementById("mode-sankey");
+      const sprintSelect = document.getElementById("sprint-select");
+      let width = 1100;
+      let height = 620;
+      let currentData = null;
+      let baseData = null;
+      let currentMode = "force";
+      let selectedSprint = "all";
+
+      fileInput.addEventListener("change", handleFileChange);
+      useSampleBtn.addEventListener("click", () => {
+        setStatus("Using bundled sample data");
+        renderGraph(clone(sampleData));
       });
-    forceSvg.call(zoomBehaviour);
+      modeForceBtn.addEventListener("click", () => setMode("force"));
+      modeSankeyBtn.addEventListener("click", () => setMode("sankey"));
+      sprintSelect.addEventListener("change", () => {
+        selectedSprint = sprintSelect.value;
+        if (baseData) renderGraph(baseData);
+      });
 
-    const sankeyLayer = sankeySvg.append("g").attr("class", "sankey-layer");
+      const resizeObserver = new ResizeObserver(() => {
+        measure();
+        if (baseData) {
+          renderGraph(baseData);
+        }
+      });
+      resizeObserver.observe(chartEl);
 
-    const tooltip = d3.select("#tooltip");
-
-    const statusEl = document.getElementById("status");
-    const fileInput = document.getElementById("csv-input");
-    const useSampleBtn = document.getElementById("use-sample");
-    const modeForceBtn = document.getElementById("mode-force");
-    const modeSankeyBtn = document.getElementById("mode-sankey");
-    let width = 1100;
-    let height = 620;
-    let currentData = null;
-    let currentMode = "force";
-
-    fileInput.addEventListener("change", handleFileChange);
-    useSampleBtn.addEventListener("click", () => {
-      setStatus("Using bundled sample data");
-      renderGraph(clone(sampleData));
-    });
-    modeForceBtn.addEventListener("click", () => setMode("force"));
-    modeSankeyBtn.addEventListener("click", () => setMode("sankey"));
-
-    const resizeObserver = new ResizeObserver(() => {
       measure();
-      if (currentData) {
-        renderGraph(currentData);
-      }
-    });
-    resizeObserver.observe(chartEl);
+      renderGraph(clone(sampleData));
 
-    measure();
-    renderGraph(clone(sampleData));
-
-    function handleFileChange(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
+      function handleFileChange(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
 
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const text = e.target.result;
           const rows = d3.csvParse(text);
-          const parsed = transformJiraCsv(rows);
+          const rawRows = d3.csvParseRows(text);
+          const parsed = transformJiraCsv(rows, rawRows);
           if (!parsed.stories.length) {
             throw new Error("No stories found in CSV");
           }
-          setStatus(`Loaded ${file.name} (${parsed.stories.length} stories, ${parsed.epics.length} epics, ${parsed.members.length} people)`);
-          renderGraph(parsed);
-        } catch (err) {
-          console.error("Could not read CSV", err);
-          setStatus("Could not read CSV: " + err.message);
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function clone(obj) {
-      return JSON.parse(JSON.stringify(obj));
-    }
-
-    function setStatus(msg) {
-      statusEl.textContent = msg;
-    }
-
-    function setMode(mode) {
-      currentMode = mode;
-      modeForceBtn.classList.toggle("active", mode === "force");
-      modeSankeyBtn.classList.toggle("active", mode === "sankey");
-      forceSvg.classed("hidden", mode !== "force");
-      sankeySvg.classed("hidden", mode !== "sankey");
-      if (currentData) renderGraph(currentData);
-    }
-
-    function measure() {
-      const rect = chartEl.getBoundingClientRect();
-      width = rect.width || 1100;
-      height = rect.height || 620;
-    }
-
-    function transformJiraCsv(rows) {
-      const members = new Map();
-      const epics = new Map();
-      const stories = [];
-      const assignments = [];
-
-      rows.forEach(row => {
-        const type = (row["Issue Type"] || "").trim().toLowerCase();
-        const key = (row["Issue key"] || "").trim();
-        if (!key) return;
-        const summary = (row["Summary"] || key).trim() || key;
-        const assignee = (row["Assignee"] || "").trim();
-        const parentKey = (row["Parent key"] || "").trim();
-        const parentSummary = (row["Parent summary"] || "").trim();
-
-        if (type === "epic") {
-          if (!epics.has(key)) {
-            epics.set(key, { id: key, title: summary || key });
+            setStatus(
+              `Loaded ${file.name} (${parsed.stories.length} stories, ${parsed.epics.length} epics, ${parsed.members.length} people)`
+            );
+            renderGraph(parsed);
+          } catch (err) {
+            console.error("Could not read CSV", err);
+            setStatus("Could not read CSV: " + err.message);
           }
-          return;
+        };
+        reader.readAsText(file);
+      }
+
+      function clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      }
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      function setSprintOptions(data) {
+        const sprints = Array.from(
+          new Set(
+            data.stories
+              .flatMap((s) => s.sprints || [])
+              .filter((v) => v && v.length)
+          )
+        ).sort();
+        sprintSelect.innerHTML = `<option value="all">All sprints</option>`;
+        sprints.forEach((s) => {
+          const opt = document.createElement("option");
+          opt.value = s;
+          opt.textContent = s;
+          sprintSelect.appendChild(opt);
+        });
+        if (!sprints.includes(selectedSprint)) {
+          selectedSprint = "all";
+        }
+        sprintSelect.value = selectedSprint;
+        sprintSelect.disabled = sprints.length === 0;
+      }
+
+      function filterBySprint(data, sprint) {
+        if (!data) return null;
+        if (sprint === "all") return clone(data);
+
+        const stories = data.stories.filter(
+          (s) => (s.sprints || []).includes(sprint)
+        );
+        const storyIds = new Set(stories.map((s) => s.id));
+
+        const assignments = data.assignments.filter((a) =>
+          storyIds.has(a.story)
+        );
+        const memberIds = new Set(assignments.map((a) => a.member));
+
+        const members = data.members.filter((m) => memberIds.has(m.id));
+
+        const epicIds = new Set(stories.map((s) => s.epic).filter(Boolean));
+        const epics = data.epics.filter((e) => epicIds.has(e.id));
+
+        return { members, stories, epics, assignments };
+      }
+
+      function setMode(mode) {
+        currentMode = mode;
+        modeForceBtn.classList.toggle("active", mode === "force");
+        modeSankeyBtn.classList.toggle("active", mode === "sankey");
+        forceSvg.classed("hidden", mode !== "force");
+        sankeySvg.classed("hidden", mode !== "sankey");
+        if (baseData) renderGraph(baseData);
+      }
+
+      function measure() {
+        const rect = chartEl.getBoundingClientRect();
+        width = rect.width || 1100;
+        height = rect.height || 620;
+      }
+
+      function transformJiraCsv(rows, rawRows) {
+        const members = new Map();
+        const epics = new Map();
+        const stories = [];
+        const assignments = [];
+        const sprintIndices = [];
+        if (Array.isArray(rawRows) && rawRows.length) {
+          rawRows[0].forEach((h, idx) => {
+            if ((h || "").toLowerCase().startsWith("sprint")) {
+              sprintIndices.push(idx);
+            }
+          });
         }
 
-        stories.push({ id: key, title: summary, epic: parentKey || null });
-
-        if (parentKey && !epics.has(parentKey)) {
-          epics.set(parentKey, { id: parentKey, title: parentSummary || parentKey });
-        }
-
-        if (assignee) {
-          if (!members.has(assignee)) {
-            members.set(assignee, { id: assignee, role: "Assignee" });
+        rows.forEach((row, idx) => {
+          const type = (row["Issue Type"] || "").trim().toLowerCase();
+          const key = (row["Issue key"] || "").trim();
+          if (!key) return;
+          const summary = (row["Summary"] || key).trim() || key;
+          const assignee = (row["Assignee"] || "").trim();
+          const parentKey = (row["Parent key"] || "").trim();
+          const parentSummary = (row["Parent summary"] || "").trim();
+          const sprintValues = [];
+          if (sprintIndices.length && rawRows && rawRows[idx + 1]) {
+            sprintIndices.forEach((colIdx) => {
+              const val = (rawRows[idx + 1][colIdx] || "").trim();
+              if (val) sprintValues.push(val);
+            });
+          } else {
+            const sprintFields = Object.keys(row).filter((k) =>
+              k.toLowerCase().startsWith("sprint")
+            );
+            sprintFields.forEach((k) => {
+              const val = (row[k] || "").trim();
+              if (val) sprintValues.push(val);
+            });
           }
-          assignments.push({ member: assignee, story: key });
-        }
-      });
+          const sprints = Array.from(new Set(sprintValues));
 
-      return {
-        members: [...members.values()],
-        stories,
-        epics: [...epics.values()],
-        assignments
-      };
-    }
+          if (type === "epic") {
+            if (!epics.has(key)) {
+              epics.set(key, { id: key, title: summary || key });
+            }
+            return;
+          }
 
-    function renderGraph(data) {
-      currentData = clone(data);
+          stories.push({
+            id: key,
+            title: summary,
+            epic: parentKey || null,
+            sprints,
+          });
 
-      forceSvg
-        .attr("viewBox", [0, 0, width, height])
-        .call(zoomBehaviour.transform, d3.zoomIdentity);
+          if (parentKey && !epics.has(parentKey)) {
+            epics.set(parentKey, {
+              id: parentKey,
+              title: parentSummary || parentKey,
+            });
+          }
 
-      sankeySvg
-        .attr("viewBox", [0, 0, width, height]);
+          if (assignee) {
+            if (!members.has(assignee)) {
+              members.set(assignee, { id: assignee, role: "Assignee" });
+            }
+            assignments.push({ member: assignee, story: key });
+          }
+        });
 
-      if (currentMode === "force") {
-        renderForce(currentData);
-      } else {
-        renderSankey(currentData);
-      }
-    }
-
-    function renderForce(data) {
-      if (renderGraph.simulation) {
-        renderGraph.simulation.stop();
-      }
-
-      zoomLayer.selectAll("*").remove();
-
-      const xByType = {
-        member: width * 0.18,
-        story: width * 0.52,
-        epic: width * 0.82
-      };
-      const nodes = [
-        ...data.members.map(d => ({ id: d.id, label: d.id, detail: d.role || "Member", type: "member" })),
-        ...data.stories.map(d => ({ id: d.id, label: d.id, detail: d.title, type: "story" })),
-        ...data.epics.map(d => ({ id: d.id, label: d.id, detail: d.title, type: "epic" }))
-      ];
-
-      const storyToEpic = new Map();
-      const epicToStories = new Map();
-      const storyToMembers = new Map();
-      const memberToStories = new Map();
-
-      const links = [
-        ...data.assignments.map(d => {
-          if (!memberToStories.has(d.member)) memberToStories.set(d.member, []);
-          memberToStories.get(d.member).push(d.story);
-          if (!storyToMembers.has(d.story)) storyToMembers.set(d.story, []);
-          storyToMembers.get(d.story).push(d.member);
-          return { source: d.member, target: d.story, kind: "works-on" };
-        }),
-        ...data.stories.filter(d => d.epic).map(d => {
-          storyToEpic.set(d.id, d.epic);
-          if (!epicToStories.has(d.epic)) epicToStories.set(d.epic, []);
-          epicToStories.get(d.epic).push(d.id);
-          return { source: d.id, target: d.epic, kind: "rolls-up" };
-        })
-      ];
-
-      const link = zoomLayer.append("g")
-        .attr("stroke-linecap", "round")
-        .selectAll("line")
-        .data(links)
-        .join("line")
-        .attr("class", "link");
-
-      const symbolType = {
-        member: d3.symbolCircle,
-        story: d3.symbolDiamond,
-        epic: d3.symbolTriangle
-      };
-
-      const node = zoomLayer.append("g")
-        .selectAll("g")
-        .data(nodes)
-        .join("g")
-        .attr("class", "node");
-
-      node.append("path")
-        .attr("fill", d => palette[d.type])
-        .attr("d", d3.symbol().type(d => symbolType[d.type]).size(d => {
-          if (d.type === "epic") return 820;
-          if (d.type === "story") return 640;
-          return 520;
-        }));
-
-      node.append("text")
-        .attr("x", 16)
-        .attr("dy", "0.35em")
-        .text(d => d.label);
-
-      const simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(l => l.kind === "rolls-up" ? 110 : 85))
-        .force("charge", d3.forceManyBody().strength(-280))
-        .force("x", d3.forceX(d => xByType[d.type]).strength(0.5))
-        .force("y", d3.forceY(height / 2).strength(0.06))
-        .force("collide", d3.forceCollide(28))
-        .on("tick", ticked);
-
-      renderGraph.simulation = simulation;
-
-      node.call(drag(simulation));
-
-      function ticked() {
-        link
-          .attr("x1", d => d.source.x)
-          .attr("y1", d => d.source.y)
-          .attr("x2", d => d.target.x)
-          .attr("y2", d => d.target.y);
-
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
+        return {
+          members: [...members.values()],
+          stories,
+          epics: [...epics.values()],
+          assignments,
+        };
       }
 
-      function drag(sim) {
-        function dragstarted(event) {
-          if (!event.active) sim.alphaTarget(0.2).restart();
-          event.subject.fx = event.subject.x;
-          event.subject.fy = event.subject.y;
-        }
+      function renderGraph(data) {
+        baseData = clone(data);
+        setSprintOptions(baseData);
+        currentData = filterBySprint(baseData, selectedSprint);
 
-        function dragged(event) {
-          event.subject.fx = event.x;
-          event.subject.fy = event.y;
-        }
+        forceSvg
+          .attr("viewBox", [0, 0, width, height])
+          .call(zoomBehaviour.transform, d3.zoomIdentity);
 
-        function dragended(event) {
-          if (!event.active) sim.alphaTarget(0);
-        }
+        sankeySvg.attr("viewBox", [0, 0, width, height]);
 
-        return d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended);
+        if (currentMode === "force") {
+          renderForce(currentData);
+        } else {
+          renderSankey(currentData);
+        }
       }
 
-      function focusSet(nodeDatum) {
-        const seen = new Set([nodeDatum.id]);
+      function renderForce(data) {
+        if (renderGraph.simulation) {
+          renderGraph.simulation.stop();
+        }
 
-        if (nodeDatum.type === "member") {
-          const stories = memberToStories.get(nodeDatum.id) || [];
-          stories.forEach(storyId => {
-            seen.add(storyId);
-            const epicId = storyToEpic.get(storyId);
+        zoomLayer.selectAll("*").remove();
+
+        const xByType = {
+          member: width * 0.18,
+          story: width * 0.52,
+          epic: width * 0.82,
+        };
+        const nodes = [
+          ...data.members.map((d) => ({
+            id: d.id,
+            label: d.id,
+            detail: d.role || "Member",
+            type: "member",
+          })),
+          ...data.stories.map((d) => ({
+            id: d.id,
+            label: d.id,
+            detail: d.title,
+            type: "story",
+          })),
+          ...data.epics.map((d) => ({
+            id: d.id,
+            label: d.id,
+            detail: d.title,
+            type: "epic",
+          })),
+        ];
+
+        const storyToEpic = new Map();
+        const epicToStories = new Map();
+        const storyToMembers = new Map();
+        const memberToStories = new Map();
+
+        const links = [
+          ...data.assignments.map((d) => {
+            if (!memberToStories.has(d.member))
+              memberToStories.set(d.member, []);
+            memberToStories.get(d.member).push(d.story);
+            if (!storyToMembers.has(d.story)) storyToMembers.set(d.story, []);
+            storyToMembers.get(d.story).push(d.member);
+            return { source: d.member, target: d.story, kind: "works-on" };
+          }),
+          ...data.stories
+            .filter((d) => d.epic)
+            .map((d) => {
+              storyToEpic.set(d.id, d.epic);
+              if (!epicToStories.has(d.epic)) epicToStories.set(d.epic, []);
+              epicToStories.get(d.epic).push(d.id);
+              return { source: d.id, target: d.epic, kind: "rolls-up" };
+            }),
+        ];
+
+        const link = zoomLayer
+          .append("g")
+          .attr("stroke-linecap", "round")
+          .selectAll("line")
+          .data(links)
+          .join("line")
+          .attr("class", "link");
+
+        const symbolType = {
+          member: d3.symbolCircle,
+          story: d3.symbolDiamond,
+          epic: d3.symbolTriangle,
+        };
+
+        const node = zoomLayer
+          .append("g")
+          .selectAll("g")
+          .data(nodes)
+          .join("g")
+          .attr("class", "node");
+
+        node
+          .append("path")
+          .attr("fill", (d) => palette[d.type])
+          .attr(
+            "d",
+            d3
+              .symbol()
+              .type((d) => symbolType[d.type])
+              .size((d) => {
+                if (d.type === "epic") return 820;
+                if (d.type === "story") return 640;
+                return 520;
+              })
+          );
+
+        node
+          .append("text")
+          .attr("x", 16)
+          .attr("dy", "0.35em")
+          .text((d) => d.label);
+
+        const simulation = d3
+          .forceSimulation(nodes)
+          .force(
+            "link",
+            d3
+              .forceLink(links)
+              .id((d) => d.id)
+              .distance((l) => (l.kind === "rolls-up" ? 110 : 85))
+          )
+          .force("charge", d3.forceManyBody().strength(-280))
+          .force("x", d3.forceX((d) => xByType[d.type]).strength(0.5))
+          .force("y", d3.forceY(height / 2).strength(0.06))
+          .force("collide", d3.forceCollide(28))
+          .on("tick", ticked);
+
+        renderGraph.simulation = simulation;
+
+        node.call(drag(simulation));
+
+        function ticked() {
+          link
+            .attr("x1", (d) => d.source.x)
+            .attr("y1", (d) => d.source.y)
+            .attr("x2", (d) => d.target.x)
+            .attr("y2", (d) => d.target.y);
+
+          node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+        }
+
+        function drag(sim) {
+          function dragstarted(event) {
+            if (!event.active) sim.alphaTarget(0.2).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+          }
+
+          function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+          }
+
+          function dragended(event) {
+            if (!event.active) sim.alphaTarget(0);
+          }
+
+          return d3
+            .drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+        }
+
+        function focusSet(nodeDatum) {
+          const seen = new Set([nodeDatum.id]);
+
+          if (nodeDatum.type === "member") {
+            const stories = memberToStories.get(nodeDatum.id) || [];
+            stories.forEach((storyId) => {
+              seen.add(storyId);
+              const epicId = storyToEpic.get(storyId);
+              if (epicId) seen.add(epicId);
+            });
+          } else if (nodeDatum.type === "epic") {
+            const stories = epicToStories.get(nodeDatum.id) || [];
+            stories.forEach((storyId) => {
+              seen.add(storyId);
+              const members = storyToMembers.get(storyId) || [];
+              members.forEach((memberId) => seen.add(memberId));
+            });
+          } else if (nodeDatum.type === "story") {
+            const epicId = storyToEpic.get(nodeDatum.id);
             if (epicId) seen.add(epicId);
-          });
-        } else if (nodeDatum.type === "epic") {
-          const stories = epicToStories.get(nodeDatum.id) || [];
-          stories.forEach(storyId => {
-            seen.add(storyId);
-            const members = storyToMembers.get(storyId) || [];
-            members.forEach(memberId => seen.add(memberId));
-          });
-        } else if (nodeDatum.type === "story") {
-          const epicId = storyToEpic.get(nodeDatum.id);
-          if (epicId) seen.add(epicId);
-          const members = storyToMembers.get(nodeDatum.id) || [];
-          members.forEach(memberId => seen.add(memberId));
+            const members = storyToMembers.get(nodeDatum.id) || [];
+            members.forEach((memberId) => seen.add(memberId));
+          }
+
+          return seen;
         }
 
-        return seen;
-      }
+        function showTooltip(event, d) {
+          const connected = focusSet(d);
+          node.classed("dim", (n) => !connected.has(n.id));
+          link
+            .classed(
+              "dim",
+              (l) => !(connected.has(l.source.id) && connected.has(l.target.id))
+            )
+            .classed(
+              "highlight",
+              (l) => connected.has(l.source.id) && connected.has(l.target.id)
+            );
 
-      function showTooltip(event, d) {
-        const connected = focusSet(d);
-        node.classed("dim", n => !connected.has(n.id));
-        link
-          .classed("dim", l => !(connected.has(l.source.id) && connected.has(l.target.id)))
-          .classed("highlight", l => connected.has(l.source.id) && connected.has(l.target.id));
-
-        tooltip
-          .style("left", `${event.pageX}px`)
-          .style("top", `${event.pageY}px`)
-          .style("opacity", 1)
-          .style("transform", "translate(-50%, -120%)")
-          .html(`
+          tooltip
+            .style("left", `${event.pageX}px`)
+            .style("top", `${event.pageY}px`)
+            .style("opacity", 1)
+            .style("transform", "translate(-50%, -120%)").html(`
             <strong>${d.label}</strong><br/>
             <span style="color: var(--muted);">${d.detail}</span><br/>
             <span style="color: var(--muted);">Type: ${d.type}</span>
           `);
-      }
-
-      function hideTooltip() {
-        node.classed("dim", false);
-        link.classed("dim", false).classed("highlight", false);
-        tooltip.style("opacity", 0).style("transform", "translate(-50%, -110%)");
-      }
-
-      node.on("mouseenter", showTooltip)
-        .on("mousemove", showTooltip)
-        .on("mouseleave", hideTooltip);
-
-      forceSvg.on("click", (event) => {
-        if (event.target.tagName.toLowerCase() === "svg") {
-          hideTooltip();
         }
-      });
-    }
 
-    function renderSankey(data) {
-      sankeyLayer.selectAll("*").remove();
+        function hideTooltip() {
+          node.classed("dim", false);
+          link.classed("dim", false).classed("highlight", false);
+          tooltip
+            .style("opacity", 0)
+            .style("transform", "translate(-50%, -110%)");
+        }
 
-      const storyToEpic = new Map();
-      data.stories.forEach(s => {
-        if (s.epic) storyToEpic.set(s.id, s.epic);
-      });
+        node
+          .on("mouseenter", showTooltip)
+          .on("mousemove", showTooltip)
+          .on("mouseleave", hideTooltip);
 
-      const linkValues = new Map();
-      data.assignments.forEach(assign => {
-        const epicId = storyToEpic.get(assign.story);
-        if (!epicId) return;
-        const key = `${assign.member}|${epicId}`;
-        linkValues.set(key, (linkValues.get(key) || 0) + 1);
-      });
+        forceSvg.on("click", (event) => {
+          if (event.target.tagName.toLowerCase() === "svg") {
+            hideTooltip();
+          }
+        });
+      }
 
-      const nodes = [
-        ...data.members.map(d => ({ id: d.id, label: d.id, type: "member" })),
-        ...data.epics.map(d => ({ id: d.id, label: d.id, type: "epic" }))
-      ];
+      function renderSankey(data) {
+        sankeyLayer.selectAll("*").remove();
 
-      const links = Array.from(linkValues.entries()).map(([key, value]) => {
-        const [member, epic] = key.split("|");
-        return {
-          source: member,
-          target: epic,
-          value
-        };
-      });
+        const storyToEpic = new Map();
+        data.stories.forEach((s) => {
+          if (s.epic) storyToEpic.set(s.id, s.epic);
+        });
 
-      const sankeyGen = d3.sankey()
-        .nodeId(d => d.id)
-        .nodeAlign(node => node.type === "member" ? 0 : 1)
-        .nodePadding(12)
-        .extent([[20, 20], [width - 20, height - 20]]);
+        const linkValues = new Map();
+        data.assignments.forEach((assign) => {
+          const epicId = storyToEpic.get(assign.story);
+          if (!epicId) return;
+          const key = `${assign.member}|${epicId}`;
+          linkValues.set(key, (linkValues.get(key) || 0) + 1);
+        });
 
-      const graph = sankeyGen({
-        nodes: nodes.map(d => Object.assign({}, d)),
-        links
-      });
+        const nodes = [
+          ...data.members.map((d) => ({
+            id: d.id,
+            label: d.id,
+            type: "member",
+          })),
+          ...data.epics.map((d) => ({ id: d.id, label: d.id, type: "epic" })),
+        ];
 
-      const link = sankeyLayer.append("g")
-        .attr("fill", "none")
-        .selectAll("path")
-        .data(graph.links)
-        .join("path")
-        .attr("d", d3.sankeyLinkHorizontal())
-        .attr("stroke", "rgba(148, 163, 184, 0.5)")
-        .attr("stroke-width", d => Math.max(1, d.width))
-        .attr("stroke-opacity", 0.8);
+        const links = Array.from(linkValues.entries()).map(([key, value]) => {
+          const [member, epic] = key.split("|");
+          return {
+            source: member,
+            target: epic,
+            value,
+          };
+        });
 
-      const node = sankeyLayer.append("g")
-        .selectAll("g")
-        .data(graph.nodes)
-        .join("g")
-        .attr("transform", d => `translate(${d.x0},${d.y0})`);
+        const sankeyGen = d3
+          .sankey()
+          .nodeId((d) => d.id)
+          .nodeAlign((node) => (node.type === "member" ? 0 : 1))
+          .nodePadding(12)
+          .extent([
+            [20, 20],
+            [width - 20, height - 20],
+          ]);
 
-      node.append("rect")
-        .attr("height", d => Math.max(4, d.y1 - d.y0))
-        .attr("width", d => Math.max(8, Math.min(14, (d.x1 - d.x0))))
-        .attr("fill", d => palette[d.type])
-        .attr("stroke", "#0b1221")
-        .attr("rx", 4);
+        const graph = sankeyGen({
+          nodes: nodes.map((d) => Object.assign({}, d)),
+          links,
+        });
 
-      node.append("text")
-        .attr("x", d => d.type === "member" ? -8 : 8)
-        .attr("y", d => (d.y1 - d.y0) / 2)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", d => d.type === "member" ? "end" : "start")
-        .attr("fill", "#e2e8f0")
-        .text(d => d.id);
+        const link = sankeyLayer
+          .append("g")
+          .attr("fill", "none")
+          .selectAll("path")
+          .data(graph.links)
+          .join("path")
+          .attr("d", d3.sankeyLinkHorizontal())
+          .attr("stroke", "rgba(148, 163, 184, 0.5)")
+          .attr("stroke-width", (d) => Math.max(1, d.width))
+          .attr("stroke-opacity", 0.8);
 
-      const sankeyTooltip = (event, d) => {
-        tooltip
-          .style("left", `${event.pageX}px`)
-          .style("top", `${event.pageY}px`)
-          .style("opacity", 1)
-          .style("transform", "translate(-50%, -120%)")
-          .html(`
+        const node = sankeyLayer
+          .append("g")
+          .selectAll("g")
+          .data(graph.nodes)
+          .join("g")
+          .attr("transform", (d) => `translate(${d.x0},${d.y0})`);
+
+        node
+          .append("rect")
+          .attr("height", (d) => Math.max(4, d.y1 - d.y0))
+          .attr("width", (d) => Math.max(8, Math.min(14, d.x1 - d.x0)))
+          .attr("fill", (d) => palette[d.type])
+          .attr("stroke", "#0b1221")
+          .attr("rx", 4);
+
+        node
+          .append("text")
+          .attr("x", (d) => (d.type === "member" ? -8 : 8))
+          .attr("y", (d) => (d.y1 - d.y0) / 2)
+          .attr("dy", "0.35em")
+          .attr("text-anchor", (d) => (d.type === "member" ? "end" : "start"))
+          .attr("fill", "#e2e8f0")
+          .text((d) => d.id);
+
+        const sankeyTooltip = (event, d) => {
+          tooltip
+            .style("left", `${event.pageX}px`)
+            .style("top", `${event.pageY}px`)
+            .style("opacity", 1)
+            .style("transform", "translate(-50%, -120%)").html(`
             <strong>${d.source.id} → ${d.target.id}</strong><br/>
             <span style="color: var(--muted);">Assignments: ${d.value}</span>
           `);
-      };
+        };
 
-      link.on("mouseenter", sankeyTooltip)
-        .on("mousemove", sankeyTooltip)
-        .on("mouseleave", () => tooltip.style("opacity", 0));
+        link
+          .on("mouseenter", sankeyTooltip)
+          .on("mousemove", sankeyTooltip)
+          .on("mouseleave", () => tooltip.style("opacity", 0));
 
-      node.on("mouseenter", (event, d) => {
-        tooltip
-          .style("left", `${event.pageX}px`)
-          .style("top", `${event.pageY}px`)
-          .style("opacity", 1)
-          .style("transform", "translate(-50%, -120%)")
-          .html(`
+        node
+          .on("mouseenter", (event, d) => {
+            tooltip
+              .style("left", `${event.pageX}px`)
+              .style("top", `${event.pageY}px`)
+              .style("opacity", 1)
+              .style("transform", "translate(-50%, -120%)").html(`
             <strong>${d.id}</strong><br/>
             <span style="color: var(--muted);">Type: ${d.type}</span>
           `);
-      }).on("mousemove", (event) => {
-        tooltip.style("left", `${event.pageX}px`).style("top", `${event.pageY}px`);
-      }).on("mouseleave", () => tooltip.style("opacity", 0));
-    }
-
-  </script>
-</body>
+          })
+          .on("mousemove", (event) => {
+            tooltip
+              .style("left", `${event.pageX}px`)
+              .style("top", `${event.pageY}px`);
+          })
+          .on("mouseleave", () => tooltip.style("opacity", 0));
+      }
+    </script>
+  </body>
 </html>
